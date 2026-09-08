@@ -1,0 +1,16 @@
+<div class="summary" data-testid="summary">
+  <span class="summary__item summary__item--added">Added: {{ summary().added }}</span>
+  <span class="summary__item summary__item--removed">Removed: {{ summary().removed }}</span>
+  <span class="summary__item summary__item--modified">Modified: {{ summary().modified }}</span>
+  <span class="summary__item summary__item--unchanged">Same: {{ summary().unchanged }}</span>
+
+  <span class="summary__spacer"></span>
+
+  <span class="summary__detail">
+    {{ summary().files }} files · {{ summary().folders }} folders · {{ summary().archives }} archives ·
+    {{ summary().archiveEntries }} archive entries
+    @if (durationMs() !== null && durationMs() !== undefined) {
+      · {{ durationMs() }} ms
+    }
+  </span>
+</div>

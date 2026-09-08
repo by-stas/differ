@@ -1,0 +1,33 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.badge--added {
+  background: var(--status-added-bg);
+  color: var(--status-added);
+}
+
+.badge--removed {
+  background: var(--status-removed-bg);
+  color: var(--status-removed);
+}
+
+.badge--modified {
+  background: var(--status-modified-bg);
+  color: var(--status-modified);
+}
+
+.badge--unchanged {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}

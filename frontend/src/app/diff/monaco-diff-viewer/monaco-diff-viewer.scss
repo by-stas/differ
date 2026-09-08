@@ -1,0 +1,37 @@
+.diff-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.diff-viewer__labels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.diff-viewer__label {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &:first-child {
+    border-right: 1px solid var(--border);
+  }
+}
+
+.diff-viewer__error {
+  margin: 0;
+  padding: 0.75rem;
+  color: var(--status-removed);
+}
+
+.diff-viewer__host {
+  flex: 1 1 auto;
+  min-height: 0;
+}

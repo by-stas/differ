@@ -1,0 +1,27 @@
+<div class="toolbar">
+  <div class="toolbar__filters">
+    @for (status of statuses; track status) {
+      <label class="filter" [class]="'filter--' + status.toLowerCase()">
+        <input
+          type="checkbox"
+          [attr.data-testid]="'filter-' + status.toLowerCase()"
+          [checked]="isEnabled(status)"
+          (change)="toggle(status)"
+        />
+        <span>{{ status }}</span>
+      </label>
+    }
+  </div>
+
+  <input
+    class="toolbar__search"
+    type="search"
+    placeholder="Filter by name…"
+    data-testid="tree-search"
+    [ngModel]="store.search()"
+    (ngModelChange)="store.setSearch($event)"
+  />
+
+  <button class="button button--ghost" type="button" (click)="store.expandAll()">Expand all</button>
+  <button class="button button--ghost" type="button" (click)="store.collapseAll()">Collapse all</button>
+</div>

@@ -1,0 +1,48 @@
+@if (hasRows()) {
+  <cdk-virtual-scroll-viewport class="tree" itemSize="28" data-testid="comparison-tree">
+    <div
+      class="row"
+      role="button"
+      tabindex="0"
+      *cdkVirtualFor="let row of rows(); trackBy: trackRow"
+      [class.row--selected]="isSelected(row.node)"
+      [class.row--diffable]="row.node.canCompareContent"
+      [style.padding-left.rem]="0.4 + row.depth * 0.9"
+      [attr.data-path]="row.node.relativePath"
+      [attr.title]="row.node.relativePath"
+      (click)="onRowClick(row)"
+      (keydown.enter)="onRowClick(row)"
+    >
+      @if (row.expandable) {
+        <button
+          class="row__toggle"
+          type="button"
+          [attr.aria-label]="row.expanded ? 'Collapse' : 'Expand'"
+          (click)="onToggle($event, row)"
+        >
+          {{ row.expanded ? '▾' : '▸' }}
+        </button>
+      } @else {
+        <span class="row__toggle row__toggle--empty"></span>
+      }
+
+      <app-status-badge [status]="row.node.status" />
+
+      <span class="row__icon" [class]="'row__icon--' + icon(row.node)" aria-hidden="true"></span>
+
+      <span class="row__name">{{ row.node.name }}</span>
+
+      @if (row.node.error) {
+        <span class="row__warning" [attr.title]="row.node.error">⚠</span>
+      }
+
+      @if (!isContainerNode(row.node)) {
+        <span class="row__sizes">
+          {{ row.node.leftSize | fileSize }} → {{ row.node.rightSize | fileSize }}
+        </span>
+      }
+    </div>
+  </cdk-virtual-scroll-viewport>
+} @else {
+  <p class="tree__empty">No entries match the current filters.</p>
+}

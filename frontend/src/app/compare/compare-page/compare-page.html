@@ -1,0 +1,121 @@
+<div class="page">
+  <header class="page__header">
+    <h1>Folder &amp; archive comparison</h1>
+    <p class="page__subtitle">
+      Compare two folders including the files inside ZIP archives, then open text differences side by side.
+    </p>
+  </header>
+
+  <section class="card">
+    <app-path-selector [busy]="store.isRunning()" (compare)="onCompare($event)" (cancel)="onCancel()" />
+  </section>
+
+  @if (store.error(); as error) {
+    <div class="banner banner--error" role="alert" data-testid="error-banner">
+      <div>
+        <strong>{{ error.code }}</strong>
+        <span>{{ error.message }}</span>
+        @if (error.detail) {
+          <small>{{ error.detail }}</small>
+        }
+      </div>
+      <button class="button button--ghost" type="button" (click)="store.clearError()">Dismiss</button>
+    </div>
+  }
+
+  @if (store.isRunning()) {
+    <div class="banner banner--progress" data-testid="progress-banner">
+      <span class="spinner" aria-hidden="true"></span>
+      @if (store.result()?.progress; as progress) {
+        <span>
+          {{ progress.phase }} — {{ progress.scannedFiles }} files, {{ progress.scannedFolders }} folders,
+          {{ progress.scannedArchives }} archives scanned, {{ progress.comparedNodes }} entries compared
+        </span>
+        @if (progress.currentPath) {
+          <code class="banner__path">{{ progress.currentPath }}</code>
+        }
+      } @else {
+        <span>Starting the comparison…</span>
+      }
+    </div>
+  }
+
+  @if (store.summary(); as summary) {
+    <app-comparison-summary [summary]="summary" [durationMs]="store.result()?.durationMs" />
+  }
+
+  @if (store.warnings().length > 0) {
+    <div class="banner banner--warning">
+      <button class="banner__toggle" type="button" (click)="showWarnings.set(!showWarnings())">
+        {{ showWarnings() ? '▾' : '▸' }} {{ store.warnings().length }} warning(s) during the scan
+      </button>
+      @if (showWarnings()) {
+        <ul class="banner__list">
+          @for (warning of store.warnings(); track warning) {
+            <li>{{ warning }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+
+  @if (store.isCompleted() && store.result()?.root) {
+    <section class="results">
+      <div class="results__tree">
+        <app-comparison-toolbar />
+        <app-comparison-tree />
+      </div>
+
+      <div class="results__detail">
+        @if (store.selectedNode(); as node) {
+          <div class="detail">
+            <header class="detail__header">
+              <span class="detail__path">{{ node.relativePath }}</span>
+              <span class="detail__meta">
+                {{ node.type }} · {{ node.status }} · {{ node.leftSize | fileSize }} →
+                {{ node.rightSize | fileSize }}
+              </span>
+            </header>
+
+            @if (node.error) {
+              <p class="detail__message detail__message--warning">{{ node.error }}</p>
+            }
+
+            @if (store.contentLoading()) {
+              <p class="detail__message">Loading file contents…</p>
+            } @else if (store.contentError(); as contentError) {
+              <p class="detail__message detail__message--error" data-testid="content-error">
+                {{ contentError.message }}
+              </p>
+            } @else if (store.content(); as content) {
+              @if (content.canCompareContent) {
+                <app-monaco-diff-viewer
+                  [content]="content"
+                  [leftLabel]="'Folder A · ' + (content.leftSize | fileSize)"
+                  [rightLabel]="'Folder B · ' + (content.rightSize | fileSize)"
+                />
+                @if (content.reason) {
+                  <p class="detail__message detail__message--warning">{{ content.reason }}</p>
+                }
+              } @else {
+                <p class="detail__message" data-testid="not-comparable">{{ content.reason }}</p>
+              }
+            } @else {
+              <p class="detail__message" data-testid="not-comparable">
+                {{ node.contentUnavailableReason ?? 'This entry cannot be opened in the diff editor.' }}
+              </p>
+            }
+          </div>
+        } @else {
+          <p class="detail__placeholder">
+            Select a modified file to open it side by side.
+            @if (maxDiffFileSizeBytes(); as limit) {
+              <br />
+              Text files up to {{ limit | fileSize }} can be compared.
+            }
+          </p>
+        }
+      </div>
+    </section>
+  }
+</div>

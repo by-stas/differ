@@ -1,0 +1,12 @@
+<div class="diff-viewer">
+  <div class="diff-viewer__labels">
+    <span class="diff-viewer__label">{{ leftLabel() }}</span>
+    <span class="diff-viewer__label">{{ rightLabel() }}</span>
+  </div>
+
+  @if (loadError(); as message) {
+    <p class="diff-viewer__error" role="alert">{{ message }}</p>
+  }
+
+  <div #editorHost class="diff-viewer__host" data-testid="monaco-host"></div>
+</div>
