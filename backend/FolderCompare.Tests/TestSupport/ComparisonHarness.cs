@@ -23,7 +23,7 @@ public sealed class ComparisonHarness
         ArchiveTreeService = new ArchiveTreeService(new[] { ArchiveScanner }, optionsWrapper, NullLogger<ArchiveTreeService>.Instance);
         FolderScanner = new FolderScanner(ArchiveTreeService, NullLogger<FolderScanner>.Instance);
         FileComparisonService = new FileComparisonService(ArchiveTreeService, optionsWrapper, NullLogger<FileComparisonService>.Instance);
-        TreeBuilder = new ComparisonTreeBuilder(FileComparisonService);
+        TreeBuilder = new ComparisonTreeBuilder(FileComparisonService, optionsWrapper);
         Store = new InMemoryComparisonStore(optionsWrapper, NullLogger<InMemoryComparisonStore>.Instance);
         FileContentService = new FileContentService(ArchiveTreeService, optionsWrapper, NullLogger<FileContentService>.Instance);
         ComparisonService = new ComparisonService(FolderScanner, TreeBuilder, Store, optionsWrapper, NullLogger<ComparisonService>.Instance);

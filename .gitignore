@@ -24,3 +24,5 @@ Thumbs.db
 
 # Published frontend copied into the API
 backend/FolderCompare.Api/wwwroot/
+samples/
+dist/
