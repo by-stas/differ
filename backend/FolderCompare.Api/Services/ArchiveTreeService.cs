@@ -182,15 +182,17 @@ public sealed class ArchiveTreeService : IArchiveTreeService
 
             var entrySegments = new List<string>(parentSegments) { leafEntryPath };
             var isOversized = entry.Size.HasValue && entry.Size.Value > _options.MaxArchiveEntrySizeBytes;
+            var expandsAsArchive = !isOversized && remainingDepth > 1 && IsArchive(leafName);
 
             var fileNode = new ScanNode
             {
                 Name = leafName,
                 RelativePath = leafVirtualPath,
-                Type = NodeType.ArchiveFile,
+                Type = expandsAsArchive ? NodeType.Archive : NodeType.ArchiveFile,
                 Size = entry.Size,
                 Crc32 = entry.Crc32,
                 ArchiveLocation = new ArchiveEntryLocation(GetArchiveFilePath(archiveNode), entrySegments),
+                Children = expandsAsArchive ? new Dictionary<string, ScanNode>(_childComparer) : null,
                 Error = isOversized
                     ? $"The entry is larger than the configured maximum entry size of {_options.MaxArchiveEntrySizeBytes} bytes."
                     : null
@@ -198,7 +200,7 @@ public sealed class ArchiveTreeService : IArchiveTreeService
 
             parent.Children[fileNode.Name] = fileNode;
 
-            if (!isOversized && remainingDepth > 1 && IsArchive(leafName))
+            if (expandsAsArchive)
             {
                 nestedCandidates.Add((fileNode, leafEntryPath));
             }
@@ -244,22 +246,9 @@ public sealed class ArchiveTreeService : IArchiveTreeService
                 .ReadEntryAsync(outerStream, entryPath, _options.MaxNestedArchiveBufferBytes, cancellationToken)
                 .ConfigureAwait(false);
 
-            var nestedNode = new ScanNode
-            {
-                Name = node.Name,
-                RelativePath = node.RelativePath,
-                Type = NodeType.Archive,
-                Size = node.Size,
-                Crc32 = node.Crc32,
-                ArchiveLocation = node.ArchiveLocation,
-                Children = new Dictionary<string, ScanNode>(_childComparer)
-            };
-
             var nestedSegments = new List<string>(parentSegments) { entryPath };
-            await PopulateAsync(nestedNode, nestedScanner, nestedStream, nestedSegments, remainingDepth - 1, cancellationToken)
+            await PopulateAsync(node, nestedScanner, nestedStream, nestedSegments, remainingDepth - 1, cancellationToken)
                 .ConfigureAwait(false);
-
-            node.Children = nestedNode.Children;
         }
         catch (OperationCanceledException)
         {
