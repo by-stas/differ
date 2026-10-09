@@ -33,17 +33,21 @@
 }
 
 .handle__grip {
-  width: 2px;
-  height: min(2rem, 60%);
-  border-radius: 2px;
-  background: var(--border);
-  transition: background 0.12s ease-in-out;
+  width: 3px;
+  height: min(2.5rem, 60%);
+  border-radius: 999px;
+  background: var(--text-muted);
+  opacity: 0.35;
+  transition:
+    opacity 0.12s ease-in-out,
+    background 0.12s ease-in-out;
 }
 
 .handle:hover .handle__grip,
 .handle:focus-visible .handle__grip,
 :host(.split-pane--dragging) .handle__grip {
   background: var(--accent);
+  opacity: 1;
 }
 
 :host(.split-pane--stacked) {
@@ -54,7 +58,7 @@
   }
 
   .handle__grip {
-    width: min(2rem, 60%);
-    height: 2px;
+    width: min(2.5rem, 60%);
+    height: 3px;
   }
 }
