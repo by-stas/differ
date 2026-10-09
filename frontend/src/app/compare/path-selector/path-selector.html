@@ -1,0 +1,71 @@
+<form class="path-selector" (ngSubmit)="submit()">
+  <div class="path-selector__fields">
+    <label class="field">
+      <span class="field__label">Left folder</span>
+      <input
+        class="field__input"
+        type="text"
+        name="leftPath"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="/builds/version-a"
+        data-testid="left-path"
+        [ngModel]="leftPath()"
+        (ngModelChange)="leftPath.set($event)"
+      />
+    </label>
+
+    <label class="field">
+      <span class="field__label">Right folder</span>
+      <input
+        class="field__input"
+        type="text"
+        name="rightPath"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="/builds/version-b"
+        data-testid="right-path"
+        [ngModel]="rightPath()"
+        (ngModelChange)="rightPath.set($event)"
+      />
+    </label>
+  </div>
+
+  <div class="path-selector__actions">
+    <label class="option" title="Compare the contents of files that have the same size">
+      <input
+        type="checkbox"
+        name="calculateHashes"
+        [ngModel]="calculateHashes()"
+        (ngModelChange)="calculateHashes.set($event)"
+      />
+      <span>Hash same-size files</span>
+    </label>
+
+    <label class="option" title="1 inspects archives on disk, 2 also inspects archives inside them">
+      <span>Archive depth</span>
+      <select
+        name="archiveMaxDepth"
+        [ngModel]="archiveMaxDepth()"
+        (ngModelChange)="archiveMaxDepth.set(+$event)"
+      >
+        <option [value]="0">Off</option>
+        <option [value]="1">1 level</option>
+        <option [value]="2">2 levels</option>
+        <option [value]="3">3 levels</option>
+      </select>
+    </label>
+
+    <span class="path-selector__spacer"></span>
+
+    @if (busy()) {
+      <button class="button button--ghost" type="button" (click)="cancel.emit()" data-testid="cancel-button">
+        Cancel
+      </button>
+    }
+
+    <button class="button button--primary" type="submit" [disabled]="!canSubmit()" data-testid="compare-button">
+      {{ busy() ? 'Comparing…' : 'Compare' }}
+    </button>
+  </div>
+</form>
