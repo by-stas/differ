@@ -166,7 +166,21 @@ Codes include `PATH_NOT_FOUND`, `PATH_INVALID`, `PATH_NOT_ALLOWED`, `ACCESS_DENI
 
 ## Configuration
 
-All settings live under `Comparison` in `backend/FolderCompare.Api/appsettings.json`.
+Settings are organized into `Authorization` and `Comparison` sections in `backend/FolderCompare.Api/appsettings.json`.
+
+### Authorization
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `EnableWindowsAuthentication` | `false` | Enable Windows authentication with AD group authorization |
+| `AllowedActiveDirectoryGroups` | `[]` | AD groups allowed to access the API (e.g., `DOMAIN\GroupName`) |
+| `RequireGroupMembership` | `true` | Require users to be in at least one allowed group |
+
+When `EnableWindowsAuthentication` is `true`, all API endpoints require Windows authentication. If `AllowedActiveDirectoryGroups` is non-empty and `RequireGroupMembership` is `true`, users must be members of at least one listed group. Group names should use the format `DOMAIN\GroupName` or just `GroupName` for the local domain.
+
+### Comparison
+
+All comparison settings live under `Comparison` in `backend/FolderCompare.Api/appsettings.json`.
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
@@ -199,6 +213,30 @@ followed by default.
 
 **Set `AllowedRoots` before exposing this application beyond localhost.** Without it, any
 caller can read any folder the server process can read.
+
+### Windows Authentication and Active Directory Groups
+
+The application supports Windows authentication with Active Directory group-based authorization.
+When enabled, all API endpoints require Windows authentication, and you can restrict access to
+specific AD groups:
+
+```json
+{
+  "Authorization": {
+    "EnableWindowsAuthentication": true,
+    "AllowedActiveDirectoryGroups": [
+      "YOURDOMAIN\\FolderCompare-Users",
+      "YOURDOMAIN\\IT-Admins"
+    ],
+    "RequireGroupMembership": true
+  }
+}
+```
+
+This ensures only authenticated Windows users who are members of at least one specified group
+can access the application. Group names can use the format `DOMAIN\GroupName` or just `GroupName`
+for the local domain. If `AllowedActiveDirectoryGroups` is empty or `RequireGroupMembership`
+is `false`, any authenticated Windows user is allowed.
 
 ## Adding another archive format
 

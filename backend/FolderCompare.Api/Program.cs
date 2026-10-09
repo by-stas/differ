@@ -1,13 +1,49 @@
 using System.Text.Json.Serialization;
+using FolderCompare.Api.Authorization;
 using FolderCompare.Api.Configuration;
 using FolderCompare.Api.Infrastructure;
 using FolderCompare.Api.Models;
 using FolderCompare.Api.Services;
+using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<ComparisonOptions>(builder.Configuration.GetSection(ComparisonOptions.SectionName));
+builder.Services.Configure<AuthorizationOptions>(builder.Configuration.GetSection(AuthorizationOptions.SectionName));
+
+// Configure Windows Authentication and Active Directory group authorization
+var authOptions = builder.Configuration.GetSection(AuthorizationOptions.SectionName).Get<AuthorizationOptions>()
+    ?? new AuthorizationOptions();
+
+if (authOptions.EnableWindowsAuthentication)
+{
+    builder.Services
+        .AddAuthentication(NegotiateDefaults.AuthenticationScheme)
+        .AddNegotiate();
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("ActiveDirectoryGroupPolicy", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.AddRequirements(new ActiveDirectoryGroupRequirement(
+                authOptions.AllowedActiveDirectoryGroups,
+                authOptions.RequireGroupMembership));
+        });
+
+        // Set as the default policy so all endpoints require it
+        options.DefaultPolicy = options.GetPolicy("ActiveDirectoryGroupPolicy")!;
+    });
+
+    builder.Services.AddSingleton<IAuthorizationHandler, ActiveDirectoryGroupHandler>();
+}
+else
+{
+    // No authentication when Windows auth is disabled
+    builder.Services.AddAuthorization();
+}
 
 builder.Services
     .AddControllers()
@@ -62,6 +98,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(CorsPolicy);
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // The published Angular build is copied into wwwroot, which makes the API self-hosting.
 app.UseDefaultFiles();
