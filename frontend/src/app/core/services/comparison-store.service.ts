@@ -70,8 +70,12 @@ export class ComparisonStore {
     });
   }
 
-  /** Loads a comparison that already exists on the server, e.g. after a page reload. */
-  loadExisting(comparisonId: string): void {
+  /**
+   * Loads a comparison that already exists on the server, e.g. after a page reload. Results are
+   * only cached for a while, so when the server no longer knows the id and the caller knows
+   * which folders it described, the comparison is simply run again.
+   */
+  loadExisting(comparisonId: string, rerunRequest?: CompareRequest): void {
     this.reset();
     this.starting.set(true);
 
@@ -84,6 +88,11 @@ export class ComparisonStore {
         }
       },
       error: (error: ApiError) => {
+        if (rerunRequest && error.code === 'COMPARISON_NOT_FOUND') {
+          this.compare(rerunRequest);
+          return;
+        }
+
         this.starting.set(false);
         this.error.set(error);
       },
