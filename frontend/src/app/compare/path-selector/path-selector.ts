@@ -1,6 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CompareRequest } from '../../core/models/comparison.models';
+
+/** Used when the caller does not specify a starting value, and mirrors the backend defaults. */
+export const DEFAULT_CALCULATE_HASHES = true;
+export const DEFAULT_ARCHIVE_MAX_DEPTH = 1;
 
 /** Collects the two folder paths and the comparison options. */
 @Component({
@@ -12,16 +16,23 @@ import { CompareRequest } from '../../core/models/comparison.models';
 })
 export class PathSelector {
   readonly busy = input(false);
+
+  /**
+   * Starting values, typically taken from the URL. The fields stay editable: each one follows
+   * its input until the user types, and follows it again when the input changes.
+   */
   readonly initialLeftPath = input('');
   readonly initialRightPath = input('');
+  readonly initialCalculateHashes = input<boolean | undefined>(undefined);
+  readonly initialArchiveMaxDepth = input<number | undefined>(undefined);
 
   readonly compare = output<CompareRequest>();
   readonly cancel = output<void>();
 
-  readonly leftPath = signal('');
-  readonly rightPath = signal('');
-  readonly calculateHashes = signal(true);
-  readonly archiveMaxDepth = signal(1);
+  readonly leftPath = linkedSignal(() => this.initialLeftPath());
+  readonly rightPath = linkedSignal(() => this.initialRightPath());
+  readonly calculateHashes = linkedSignal(() => this.initialCalculateHashes() ?? DEFAULT_CALCULATE_HASHES);
+  readonly archiveMaxDepth = linkedSignal(() => this.initialArchiveMaxDepth() ?? DEFAULT_ARCHIVE_MAX_DEPTH);
 
   readonly canSubmit = computed(
     () => this.leftPath().trim().length > 0 && this.rightPath().trim().length > 0 && !this.busy(),

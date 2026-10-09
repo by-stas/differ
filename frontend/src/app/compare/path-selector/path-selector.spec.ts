@@ -60,6 +60,42 @@ describe('PathSelector', () => {
     });
   });
 
+  it('prefills the fields from the starting values', async () => {
+    fixture.componentRef.setInput('initialLeftPath', '/builds/a');
+    fixture.componentRef.setInput('initialRightPath', '/builds/b');
+    fixture.componentRef.setInput('initialCalculateHashes', false);
+    fixture.componentRef.setInput('initialArchiveMaxDepth', 2);
+    await fixture.whenStable();
+
+    expect(input('left-path').value).toBe('/builds/a');
+    expect(input('right-path').value).toBe('/builds/b');
+
+    let emitted: CompareRequest | undefined;
+    fixture.componentInstance.compare.subscribe((request) => (emitted = request));
+    compareButton().click();
+    await fixture.whenStable();
+
+    expect(emitted).toEqual({
+      leftPath: '/builds/a',
+      rightPath: '/builds/b',
+      calculateHashes: false,
+      archiveMaxDepth: 2,
+    });
+  });
+
+  it('keeps what the user typed until the starting values change again', async () => {
+    fixture.componentRef.setInput('initialLeftPath', '/builds/a');
+    await fixture.whenStable();
+
+    await type('left-path', '/typed');
+    expect(input('left-path').value).toBe('/typed');
+
+    fixture.componentRef.setInput('initialLeftPath', '/builds/c');
+    await fixture.whenStable();
+
+    expect(input('left-path').value).toBe('/builds/c');
+  });
+
   it('shows a cancel button and disables comparing while busy', async () => {
     fixture.componentRef.setInput('busy', true);
     await type('left-path', '/builds/a');

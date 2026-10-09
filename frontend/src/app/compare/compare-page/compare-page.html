@@ -7,7 +7,15 @@
   </header>
 
   <section class="card">
-    <app-path-selector [busy]="store.isRunning()" (compare)="onCompare($event)" (cancel)="onCancel()" />
+    <app-path-selector
+      [busy]="store.isRunning()"
+      [initialLeftPath]="formLeftPath()"
+      [initialRightPath]="formRightPath()"
+      [initialCalculateHashes]="formCalculateHashes()"
+      [initialArchiveMaxDepth]="formArchiveMaxDepth()"
+      (compare)="onCompare($event)"
+      (cancel)="onCancel()"
+    />
   </section>
 
   @if (store.error(); as error) {
