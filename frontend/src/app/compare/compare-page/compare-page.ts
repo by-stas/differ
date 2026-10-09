@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { readCompareRequest, sameCompareParams, writeCompareParams } from '../../core/comparison-url';
 import { CompareRequest } from '../../core/models/comparison.models';
 import { ComparisonApiService } from '../../core/services/comparison-api.service';
 import { ComparisonStore } from '../../core/services/comparison-store.service';
@@ -34,27 +35,63 @@ export class ComparePage {
   protected readonly maxDiffFileSizeBytes = signal<number | null>(null);
   protected readonly showWarnings = signal(false);
 
+  /** The request the current URL describes, used to prefill the form and to rebuild the URL. */
+  private readonly activeRequest = signal<CompareRequest | null>(null);
+
+  protected readonly formLeftPath = computed(
+    () => this.activeRequest()?.leftPath ?? this.store.result()?.leftPath ?? '',
+  );
+
+  protected readonly formRightPath = computed(
+    () => this.activeRequest()?.rightPath ?? this.store.result()?.rightPath ?? '',
+  );
+
+  protected readonly formCalculateHashes = computed(() => this.activeRequest()?.calculateHashes);
+
+  protected readonly formArchiveMaxDepth = computed(() => this.activeRequest()?.archiveMaxDepth);
+
   constructor() {
     this.api.health().subscribe({
       next: (health) => this.maxDiffFileSizeBytes.set(health.limits.maxDiffFileSizeBytes),
       error: () => this.maxDiffFileSizeBytes.set(null),
     });
 
-    const comparisonId = this.route.snapshot.paramMap.get('id');
+    const snapshot = this.route.snapshot;
+    const comparisonId = snapshot.paramMap.get('id');
+    const urlRequest = readCompareRequest(snapshot.queryParamMap);
+    this.activeRequest.set(urlRequest);
+
     if (comparisonId) {
-      this.store.loadExisting(comparisonId);
+      // Navigating to /compare/:id remounts this page; the store already holds that result.
+      if (this.store.result()?.id !== comparisonId) {
+        this.store.loadExisting(comparisonId, urlRequest ?? undefined);
+      }
+    } else if (urlRequest) {
+      this.store.compare(urlRequest);
     }
 
-    // Keep the URL in sync so a comparison can be reloaded or shared.
+    // Keep the URL in sync so a comparison can be reloaded, bookmarked or shared.
     effect(() => {
-      const id = this.store.result()?.id;
-      if (id && this.route.snapshot.paramMap.get('id') !== id) {
-        void this.router.navigate(['/compare', id], { replaceUrl: true });
+      const result = this.store.result();
+      if (!result) {
+        return;
       }
+
+      const queryParams = writeCompareParams(
+        this.activeRequest() ?? { leftPath: result.leftPath, rightPath: result.rightPath },
+      );
+
+      const current = this.route.snapshot;
+      if (current.paramMap.get('id') === result.id && sameCompareParams(current.queryParamMap, queryParams)) {
+        return;
+      }
+
+      void this.router.navigate(['/compare', result.id], { queryParams, replaceUrl: true });
     });
   }
 
   protected onCompare(request: CompareRequest): void {
+    this.activeRequest.set(request);
     this.store.compare(request);
   }
 

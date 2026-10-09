@@ -49,6 +49,27 @@ application:
 dotnet dist/publish/FolderCompare.Api.dll
 ```
 
+## Comparisons in the URL
+
+Both folder paths live in the URL, so a comparison can be bookmarked, shared or scripted:
+
+```
+http://localhost:4200/?left=/builds/v1&right=/builds/v2
+http://localhost:4200/compare/cmp-798ae66a295c?left=/builds/v1&right=/builds/v2&depth=2&hashes=false
+```
+
+| Parameter | Meaning | Default |
+| --- | --- | --- |
+| `left` | Left folder path | required |
+| `right` | Right folder path | required |
+| `hashes` | Hash same-size files (`false` or `0` turns it off) | `true` |
+| `depth` | How many archive levels to look inside (`0` disables archives) | `1` |
+
+Opening a link with both paths prefills the form and starts the comparison immediately. Once a
+comparison exists, the URL becomes `/compare/<id>?left=…&right=…`: the id reuses the result the
+backend still has cached, and the paths make the link keep working after that cache entry
+expires, in which case the comparison is simply run again.
+
 ## How the comparison works
 
 Both folders are scanned recursively into normalized `ScanNode` trees. Everything is a node:
