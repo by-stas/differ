@@ -5,6 +5,7 @@ import { CompareRequest } from '../../core/models/comparison.models';
 import { ComparisonApiService } from '../../core/services/comparison-api.service';
 import { ComparisonStore } from '../../core/services/comparison-store.service';
 import { MonacoDiffViewer } from '../../diff/monaco-diff-viewer/monaco-diff-viewer';
+import { SplitPane } from '../../shared/components/split-pane/split-pane';
 import { FileSizePipe } from '../../shared/pipes/file-size.pipe';
 import { ComparisonSummaryView } from '../comparison-summary/comparison-summary';
 import { ComparisonToolbar } from '../comparison-toolbar/comparison-toolbar';
@@ -22,6 +23,7 @@ import { PathSelector } from '../path-selector/path-selector';
     FileSizePipe,
     MonacoDiffViewer,
     PathSelector,
+    SplitPane,
   ],
   templateUrl: './compare-page.html',
   styleUrl: './compare-page.scss',

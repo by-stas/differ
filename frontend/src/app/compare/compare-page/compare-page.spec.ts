@@ -144,6 +144,15 @@ describe('ComparePage', () => {
     expect(query('comparison-tree')).not.toBeNull();
   });
 
+  it('separates the tree from the diff with a resize handle', async () => {
+    await complete();
+
+    const handle = query('split-handle');
+    expect(handle).not.toBeNull();
+    expect(handle?.previousElementSibling?.classList.contains('results__tree')).toBe(true);
+    expect(handle?.nextElementSibling?.classList.contains('results__detail')).toBe(true);
+  });
+
   it('shows the backend error when a folder does not exist', async () => {
     store.compare({ leftPath: '/missing', rightPath: '/b' });
     http

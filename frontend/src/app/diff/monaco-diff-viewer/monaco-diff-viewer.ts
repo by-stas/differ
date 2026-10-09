@@ -69,6 +69,7 @@ export class MonacoDiffViewer implements OnDestroy {
       originalEditable: false,
       automaticLayout: true,
       renderSideBySide: true,
+      renderSideBySideInlineBreakpoint: 900,
       renderOverviewRuler: true,
       lineNumbers: 'on',
       wordWrap: 'on',

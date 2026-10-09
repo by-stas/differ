@@ -1,0 +1,24 @@
+<ng-content select="[splitStart]"></ng-content>
+
+<div
+  class="handle"
+  role="separator"
+  tabindex="0"
+  data-testid="split-handle"
+  title="Drag to resize — double-click to reset"
+  [attr.aria-orientation]="stacked() ? 'horizontal' : 'vertical'"
+  [attr.aria-valuenow]="percent()"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  aria-label="Resize the panes"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+  (keydown)="onKeydown($event)"
+  (dblclick)="reset()"
+>
+  <span class="handle__grip" aria-hidden="true"></span>
+</div>
+
+<ng-content select="[splitEnd]"></ng-content>

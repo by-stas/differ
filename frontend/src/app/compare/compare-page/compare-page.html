@@ -68,13 +68,13 @@
   }
 
   @if (store.isCompleted() && store.result()?.root) {
-    <section class="results">
-      <div class="results__tree">
+    <app-split-pane class="results" storageKey="differ.results.split">
+      <div class="results__tree" splitStart>
         <app-comparison-toolbar />
         <app-comparison-tree />
       </div>
 
-      <div class="results__detail">
+      <div class="results__detail" splitEnd>
         @if (store.selectedNode(); as node) {
           <div class="detail">
             <header class="detail__header">
@@ -124,6 +124,6 @@
           </p>
         }
       </div>
-    </section>
+    </app-split-pane>
   }
 </div>

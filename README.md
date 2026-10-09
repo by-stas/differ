@@ -30,6 +30,9 @@ npm start
 
 Open <http://localhost:4200>, enter two folder paths and press **Compare**.
 
+Drag the divider between the difference tree and the diff to give either side more room; it can
+also be moved with the arrow keys, reset with a double-click, and the size is remembered.
+
 To try it out immediately, generate two sample folders that cover every comparison case
 (added, removed, modified, unchanged, same-size-different-content, binary, ZIP archives and a
 nested archive):

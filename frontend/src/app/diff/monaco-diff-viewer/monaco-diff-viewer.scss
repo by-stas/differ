@@ -3,6 +3,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+  container-type: inline-size;
 }
 
 .diff-viewer {
@@ -17,6 +18,14 @@
   grid-template-columns: 1fr 1fr;
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
+}
+
+// Monaco folds the two sides into one inline diff once the pane is narrower than
+// `renderSideBySideInlineBreakpoint`, where a column label per side would be a lie.
+@container (max-width: 899px) {
+  .diff-viewer__labels {
+    display: none;
+  }
 }
 
 .diff-viewer__label {
